@@ -16,11 +16,18 @@ module #{(`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.g
     config.time_zone = 'Asia/Tokyo'
     config.active_record.default_timezone = :local
     config.active_record.time_zone_aware_attributes = false
-    config.i18n.load_path += Dir["#{Rails.root.to_s}/config/locales/**/*.{rb,yml}"]
     config.autoload_paths << Rails.root.join("lib")
+    config.eager_load_paths << Rails.root.join("lib")
 
     Dir.glob("config/routes/*").each do |route|
       config.paths["config/routes.rb"] << Rails.root.join(route)
+    end
+
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins "*"
+        resource "*", headers: :any, methods: [:get, :post, :options, :delete, :put, :patch]
+      end
     end
   end
 end

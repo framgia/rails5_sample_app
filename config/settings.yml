@@ -1,3 +1,47 @@
 carrierwave:
   fog_cache_control: 1.hour
-  fog_public: true
+  fog_expiration: 1.hour
+  fog_public: false
+
+access_token_header: "X-Framgia-Access-Token"
+
+http_code:
+  code_200: 200
+  code_400: 400
+  code_404: 404
+  code_401: 401
+  code_403: 403
+
+error_formatter:
+  error_code_key: "error_code"
+  error_codes:
+    data_operation: 600
+    unauthorized: 601
+    token_expired: 602
+    record_not_found: 603
+    validation_errors: 604
+    unauthenticated: 606
+  message_key: "message"
+
+validations:
+  strings:
+    max_length: 255
+  email_regex: \A([\w\.%\+\-]+)@([\w.\-]+\.+[\w]{2,})\z
+  user:
+    user_name:
+      max_length: 20
+
+user_tokens:
+  token:
+    secure_length: 64
+  refresh_token:
+    secure_length: 64
+  expired_period: 30.days
+
+users:
+  reset_pwd_token:
+    secure_length: 16
+    expired_period: 30.minutes
+
+pages:
+  per_page: 20

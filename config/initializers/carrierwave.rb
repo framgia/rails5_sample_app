@@ -12,6 +12,7 @@ CarrierWave.configure do |config|
     }
     config.fog_directory  = ENV['S3_BUCKET_NAME']
     config.fog_public = Settings.carrierwave.fog_public
+    config.fog_authenticated_url_expiration = eval(Settings.carrierwave.fog_expiration)
     config.fog_attributes = {
       "Cache-Control" => "max-age=#{eval(Settings.carrierwave.fog_cache_control).to_i}"
     }
