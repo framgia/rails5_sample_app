@@ -106,4 +106,7 @@ gem 'carrierwave'
 gem 'fog'
 gem 'aws-sdk', '~> 1.66.0'
 gem 'capistrano-faster-assets'
+gem 'grape'
+gem 'active_model_serializers'
+gem 'grape-active_model_serializers'
 gem "rack-cors", :require => "rack/cors"
