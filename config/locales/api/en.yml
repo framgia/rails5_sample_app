@@ -1,0 +1,17 @@
+en:
+  api_error:
+    unauthorized: "Unauthorized!"
+    not_found: "Not Found!"
+    validation_errors: "Validations Error!"
+    token_expired: "Token expired!"
+    pwd_not_correct: "Password not correct!"
+    record_not_found: "Record not found!"
+    unauthenticated: "Unauthenticated!"
+  time:
+    formats:
+      full_date: "%Y/%m/%d"
+      full_datetime: "%Y/%m/%d %H:%M:%S"
+      full_time: "%H:%M:%S"
+  validations:
+    message_errors:
+      password_same: "can not be the same"

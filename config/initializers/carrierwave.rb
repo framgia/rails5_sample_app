@@ -2,7 +2,6 @@ CarrierWave.configure do |config|
   if Rails.env.development? || Rails.env.test?
     config.storage :file
   else
-    config.storage :fog
     config.fog_credentials = {
       provider:                "AWS",
       aws_access_key_id:       ENV["AWS_ACCESS_KEY_ID"],
@@ -10,6 +9,7 @@ CarrierWave.configure do |config|
       region:                  ENV["AWS_REGION"],
       path_style:              true
     }
+    config.storage :fog
     config.fog_directory  = ENV['S3_BUCKET_NAME']
     config.fog_public = Settings.carrierwave.fog_public
     config.fog_authenticated_url_expiration = eval(Settings.carrierwave.fog_expiration)
