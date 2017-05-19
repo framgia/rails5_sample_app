@@ -19,6 +19,7 @@ build:
     DEVISE_SECRET_KEY: ci_test
     WEB_SERVER: unicorn
     NUM_UNICORN_WORKERS: 3
+    IS_API_SERVICE: true
   commands:
     - framgia-ci test-connect 127.0.0.1 3306
     - bundle install
