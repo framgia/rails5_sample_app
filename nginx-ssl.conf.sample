@@ -1,0 +1,90 @@
+# Nginx + Passenger
+server {
+	listen 443 ssl;
+	server_name _; 
+	ssl_certificate /etc/ssl/certs/ssl.crt;
+	ssl_certificate_key /etc/ssl/private/ssl.key;
+	root /usr/local/rails_apps/Rails5Skeleton/current/public;
+	client_max_body_size 10M;
+	error_log /var/log/nginx/Rails5Skeleton.https_error.log ;
+	access_log /var/log/nginx/Rails5Skeleton.https_access.log;
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+	ssl_ciphers "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS";
+    	ssl_prefer_server_ciphers on;
+	# OCSP Stapling
+	# fetch OCSP records from URL in ssl_certificate and cache them
+    	ssl_stapling on;
+    	ssl_stapling_verify on;
+
+    	# HSTS (ngx_http_headers_module is required) (31536000 seconds = 2 years)
+    	add_header Strict-Transport-Security "max-age=31536000; preload";
+    	add_header X-Frame-Options SAMEORIGIN;
+    	add_header X-Content-Type-Options nosniff;
+
+	location / {
+		try_files $uri @webapp;
+		passenger_set_header Upgrade $http_upgrade;                                     
+		passenger_set_header Connection "Upgrade"; 
+		add_header Upgrade $http_upgrade;                                         
+		add_header Connection "Upgrade";
+	}
+	location @webapp {
+		proxy_redirect     off;
+		proxy_set_header   Host             $host;
+		proxy_set_header   X-Real-IP        $remote_addr;
+		proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+		proxy_read_timeout 10000;
+		passenger_set_header Upgrade $http_upgrade;                                     
+		passenger_set_header Connection "Upgrade";
+		add_header Upgrade $http_upgrade;                                         
+		add_header Connection "Upgrade";
+	}
+	passenger_set_header Upgrade $http_upgrade;
+	passenger_set_header Connection "Upgrade";
+	passenger_enabled on;
+	passenger_ruby /home/deploy/.rvm/gems/ruby-2.3.1/wrappers/ruby;
+	location /nginx_status {
+	auth_basic off;
+        stub_status on;
+        access_log   off;
+        }
+
+}
+# NGINX + UNICORN
+## unicorn
+upstream backend-unicorn {
+  server unix:/usr/local/rails_apps/Rails5Skeleton/current/tmp/sockets/unicorn.sock;
+}
+server {
+        listen 443 ssl;
+        server_name _;
+        ssl_certificate /etc/ssl/certs/ssl.crt;
+        ssl_certificate_key /etc/ssl/private/ssl.key;
+        root /usr/local/rails_apps/Rails5Skeleton/current/public;
+        client_max_body_size 10M;
+        error_log /var/log/nginx/Rails5Skeleton.https_error.log ;
+        access_log /var/log/nginx/Rails5Skeleton.https_access.log;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_ciphers "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS";
+        ssl_prefer_server_ciphers on;
+        # OCSP Stapling
+        # fetch OCSP records from URL in ssl_certificate and cache them
+        ssl_stapling on;
+        ssl_stapling_verify on;
+
+        # HSTS (ngx_http_headers_module is required) (31536000 seconds = 2 years)
+        add_header Strict-Transport-Security "max-age=31536000; preload";
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-Content-Type-Options nosniff;
+	location / {
+    try_files $uri @webapp;
+  }
+  location @webapp {
+    proxy_redirect     off;
+    proxy_set_header   Host             $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    proxy_read_timeout 10000;
+    proxy_pass http://backend-unicorn;
+  }
+}
