@@ -1,5 +1,5 @@
 # config valid only for current version of Capistrano
-lock "3.10.1"
+lock "3.8.1"
 require 'active_support/core_ext/string'
 require_relative "deploy/aws_utils"
 
