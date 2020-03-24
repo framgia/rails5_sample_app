@@ -2,10 +2,15 @@
 lock "3.10.1"
 require 'active_support/core_ext/string'
 require_relative "deploy/aws_utils"
+require_relative "deploy/server_sun_utils"
 
 set :application, ENV["REPO_URL"].split("/").last.gsub(".git","").underscore.camelize
 set :repo_url, ENV["REPO_URL"]
+
 set :assets_roles, [:app]
+set :puma_roles, [:app]
+set :sidekiq_roles, [:worker]
+
 set :deploy_ref, ENV["DEPLOY_REF"]
 set :deploy_ref_type, ENV["DEPLOY_REF_TYPE"]
 set :bundle_binstubs, ->{shared_path.join("bin")}
@@ -13,43 +18,37 @@ set :bundle_binstubs, ->{shared_path.join("bin")}
 if fetch(:deploy_ref)
   set :branch, fetch(:deploy_ref)
 else
-  raise "Please set $DEPLOY_REF"
+  ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 end
 
+platform = ENV["PLATFORM"] || "aws"
+set :platform, platform
 set :rvm_ruby_version, "2.4.1"
+
 set :deploy_to, "/usr/local/rails_apps/#{fetch :application}"
-set :settings, YAML.load_file(ENV["SETTING_FILE"] ||"config/deploy/settings.yml")
-set :instances, get_ec2_targets unless ENV["LOCAL_DEPLOY"]
-case ENV["WEB_SERVER"]
-when "passenger"
-  set :passenger_roles, :app
-  set :passenger_restart_runner, :sequence
-  set :passenger_restart_wait, 5
-  set :passenger_restart_limit, 2
-  set :passenger_restart_with_sudo, false
-  set :passenger_environment_variables, {}
-  set :passenger_restart_command, "passenger-config restart-app"
-  set :passenger_restart_options, -> { "#{deploy_to} --ignore-app-not-running" }
-when "unicorn"
-  set :unicorn_rack_env, ENV["RAILS_ENV"] || "production"
-  set :unicorn_config_path, "#{current_path}/config/unicorn.rb"
-end
+set :deployer, ENV["DEPLOYER"] || "deploy"
 
-# Default value for linked_dirs is []
-# NOTE: public/uploads IS USED ONLY FOR THE STAGING ENVIRONMENT
+set :instances, platform == "aws" ? get_ec2_targets : get_server_sun_targets
+
+set :deploy_via,      :remote_cache
+set :puma_state_file,      "#{shared_path}/tmp/pids/puma.state"
+set :puma_pid_file,        "#{shared_path}/tmp/pids/puma.pid"
+
+default_linked_files = [
+  "config/database.yml",
+  "config/secrets.yml",
+  "config/application.yml"
+]
+
+append :linked_files, *default_linked_files
+
 set :linked_dirs, %w(bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system public/uploads)
-
-# Default value for default_env is {}
-set :default_env, File.read("/home/deploy/.env").split("\n").inject({}){|h,var|
-  k_v = var.gsub("export ","").split("=")
-  h.merge k_v.first.downcase => k_v.last.gsub("\"", "")
-}.symbolize_keys
 
 namespace :deploy do
   desc "create database"
   task :create_database do
     on roles(:db) do |host|
-      within "#{release_path}" do
+      within release_path do
         with rails_env: ENV["RAILS_ENV"] do
           execute :rake, "db:create"
         end
@@ -58,22 +57,21 @@ namespace :deploy do
   end
   before :migrate, :create_database
 
-  desc "link dotenv"
-  task :link_dotenv do
-    on roles(:app) do
-      execute "ln -s /home/deploy/.env #{release_path}/.env"
-    end
-  end
-  before :restart, :link_dotenv
-
   desc "Restart application"
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      case ENV["WEB_SERVER"]
-      when "passenger"
-        invoke "passenger:restart"
-      else
-        invoke "unicorn:restart"
+      within release_path do
+        if test "[ -f #{fetch(:puma_pid_file)} ]" and test :kill, "-0 $( cat #{fetch(:puma_pid_file)} )"
+          execute "pumactl -S #{fetch(:puma_state_file)} restart"
+        else
+          execute "sudo systemctl start puma"
+        end
+      end
+    end
+
+    on roles(:worker), in: :sequence, wait: 5 do
+      within release_path do
+        execute "sudo systemctl restart sidekiq"
       end
     end
   end
@@ -81,13 +79,11 @@ namespace :deploy do
 
   desc "update ec2 tags"
   task :update_ec2_tags do
-    on roles(:app) do
-      within "#{release_path}" do
-        branch = fetch(:branch)
-        ref_type = fetch(:deploy_ref_type)
-        last_commit = ref_type == 'branch' ? `git rev-parse #{branch.split('/')[1]}` : `git rev-list -n 1 #{branch}`
-        update_ec2_tags ref_type, branch, last_commit if fetch(:stage) == :production  || !ENV["LOCAL_CARRIERWAVE"]
-      end
+    if fetch(:platform) == "aws"
+      branch = fetch(:branch)
+      ref_type = fetch(:deploy_ref_type)
+      last_commit = fetch(:current_revision)
+      update_ec2_tags ref_type, branch, last_commit
     end
   end
   after :restart, :update_ec2_tags

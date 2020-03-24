@@ -1,5 +1,5 @@
 CarrierWave.configure do |config|
-  if Rails.env.development? || Rails.env.test?
+  if Rails.env.development? || Rails.env.test? || Rails.env.staging?
     config.storage :file
   else
     config.fog_credentials = {

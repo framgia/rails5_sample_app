@@ -98,7 +98,7 @@ GEM
       i18n (~> 0.7)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    airbrussh (1.2.0)
+    airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
     arel (8.0.0)
     ast (2.4.0)
@@ -130,7 +130,7 @@ GEM
       thor (~> 0.18)
     byebug (9.0.6)
     cancancan (2.0.0)
-    capistrano (3.8.1)
+    capistrano (3.10.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -172,7 +172,7 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     colorize (0.8.1)
-    concurrent-ruby (1.0.5)
+    concurrent-ruby (1.1.6)
     config (1.4.0)
       activesupport (>= 3.0)
       deep_merge (~> 1.1.1)
@@ -365,7 +365,7 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
-    i18n (0.9.4)
+    i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     inflecto (0.0.2)
@@ -416,9 +416,9 @@ GEM
     mustermann (1.0.2)
     mysql2 (0.4.6)
     nenv (0.3.0)
-    net-scp (1.2.1)
-      net-ssh (>= 2.6.5)
-    net-ssh (4.1.0)
+    net-scp (2.0.0)
+      net-ssh (>= 2.6.5, < 6.0.0)
+    net-ssh (5.2.0)
     nio4r (2.0.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
@@ -477,7 +477,7 @@ GEM
     rainbow (2.2.2)
       rake
     raindrops (0.18.0)
-    rake (12.3.0)
+    rake (12.3.3)
     ransack (1.8.2)
       actionpack (>= 3.0)
       activerecord (>= 3.0)
@@ -593,7 +593,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sshkit (1.13.1)
+    sshkit (1.21.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     state_machines (0.4.0)
@@ -650,7 +650,7 @@ DEPENDENCIES
   bundler-audit
   byebug
   cancancan
-  capistrano
+  capistrano (= 3.10.1)
   capistrano-bundler
   capistrano-faster-assets
   capistrano-passenger

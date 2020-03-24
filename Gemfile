@@ -70,7 +70,7 @@ group :test do
 end
 
 group :staging, :production do
-  gem 'capistrano'
+  gem 'capistrano', '3.10.1'
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'

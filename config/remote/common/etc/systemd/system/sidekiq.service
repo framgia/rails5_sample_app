@@ -1,0 +1,12 @@
+[Unit]
+Description = sidekiq daemon
+
+[Service]
+ExecStart = /usr/local/rails_apps/current/config/remote/common/bin/sidekiq.sh
+Restart = always
+Type = simple
+User = deploy
+Group = deploy
+
+[Install]
+WantedBy = multi-user.target

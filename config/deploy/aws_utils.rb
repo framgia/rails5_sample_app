@@ -4,8 +4,8 @@ require "aws-sdk"
 def get_ec2_targets
   init_data
   targets = {}
-  @instance_name_tags.each do |role_name, tag_name|
-    targets[role_name] = @ec2.describe_instances(filters:[{ name: "tag:Name", values: [tag_name] }]).reservations
+  @instance_name_tags.each do |role_name, tag_names|
+    targets[role_name] = @ec2.describe_instances(filters:[{ name: "tag:Name", values: tag_names }, { name: "instance-state-name", values: ["running"] }]).reservations
       .map(&:instances).flatten.map(&:private_ip_address).compact
   end
   targets
@@ -13,7 +13,7 @@ end
 
 def update_ec2_tags ref_type, ref_name, last_commit
   init_data
-  @ec2.describe_instances(filters:[{ name: "tag:Name", values: @instance_name_tags.values }]).reservations
+  @ec2.describe_instances(filters:[{ name: "tag:Name", values: @instance_name_tags.values }, { name: "instance-state-name", values: ["running"] }]).reservations
     .map(&:instances).flatten.compact.each do |instance|
       @ec2.create_tags({
         resources: [instance.instance_id],
