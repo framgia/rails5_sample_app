@@ -7,8 +7,7 @@ require 'active_support/core_ext/string'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-eval(<<EOF
-module #{(`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.gsub(".git","").underscore.camelize}
+module Rails5Skeleton
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -24,5 +23,3 @@ module #{(`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.g
     end
   end
 end
-EOF
-)
