@@ -7,9 +7,8 @@ require 'active_support/core_ext/string'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-eval(<<EOF
-module #{(`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.gsub(".git","").underscore.camelize}	
-  class Application < Rails::Application
+Object.const_set((`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.gsub(".git","").underscore.camelize, Module.new)
+  .const_set('Application', Class.new(Rails::Application) do
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -23,7 +22,4 @@ module #{(`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.g
     Dir.glob("config/routes/*").each do |route|
       config.paths["config/routes.rb"] << Rails.root.join(route)
     end
-  end
-end
-EOF
-)
+  end)
