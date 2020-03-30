@@ -21,16 +21,10 @@ end
 
 platform = ENV["PLATFORM"] || "aws"
 set :platform, platform
-set :rvm_ruby_version, "2.4.1"
-
 set :deploy_to, "/usr/local/rails_apps/#{fetch :application}"
 set :deployer, ENV["DEPLOYER"] || "deploy"
-
 set :instances, platform == "aws" ? get_ec2_targets : get_server_sun_targets
-
 set :deploy_via,      :remote_cache
-set :puma_state_file,      "#{shared_path}/tmp/pids/puma.state"
-set :puma_pid_file,        "#{shared_path}/tmp/pids/puma.pid"
 
 default_linked_files = [
   "config/database.yml",
@@ -41,6 +35,10 @@ default_linked_files = [
 append :linked_files, *default_linked_files
 
 set :linked_dirs, %w(bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system public/uploads)
+
+set :rvm_ruby_version, "2.4.1"
+set :rvm_binary, "~/.rvm/bin/rvm"
+set :puma_pid_file,        "#{shared_path}/tmp/pids/puma.pid"
 
 namespace :deploy do
   desc "create database"
@@ -60,7 +58,7 @@ namespace :deploy do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
         if test "[ -f #{fetch(:puma_pid_file)} ]" and test :kill, "-0 $( cat #{fetch(:puma_pid_file)} )"
-          execute "sudo systemctl restart puma"
+          execute "cd #{current_path} && #{fetch(:rvm_binary)} #{fetch(:rvm_ruby_version)} do bundle exec pumactl -S #{shared_path}/tmp/pids/puma.state restart" 
         else
           execute "sudo systemctl start puma"
         end
