@@ -1,9 +1,5 @@
 #!/bin/bash
 
-APP_ROOT=/usr/local/rails_apps/current
+cd /usr/local/rails_apps/Rails5Skeleton/current
 
-cd $APP_ROOT
-#!/bin/bash
-
-APP_ROOT=/usr/local/rails_apps/current
-/home/deploy/.rbenv/shims/bundle exec sidekiq -C $APP_ROOT/config/sidekiq.yml
+/home/deploy/.rvm/bin/rvm default do bundle exec sidekiq -C /usr/local/rails_apps/Rails5Skeleton/current/config/sidekiq.yml -e staging

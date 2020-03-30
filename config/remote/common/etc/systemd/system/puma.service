@@ -2,7 +2,10 @@
 Description = puma daemon
 
 [Service]
-ExecStart = /usr/local/rails_apps/current/config/remote/common/bin/puma.sh
+#The path to the application code root directory for execute start
+WorkingDirectory = /usr/local/rails_apps/Rails5Skeleton/current
+
+ExecStart = /usr/local/rails_apps/Rails5Skeleton/shared/config/puma.sh
 Restart = always
 Type = simple
 User = deploy

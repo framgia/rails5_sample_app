@@ -7,7 +7,7 @@ preload_app!
 
 root_dir = Dir.pwd
 
-environment "production"
+environment "staging"
 daemonize false
 pidfile File.join(root_dir, "tmp", "pids", "puma.pid")
 state_path File.join(root_dir, "tmp", "pids", "puma.state")
