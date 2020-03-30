@@ -7,7 +7,7 @@ require 'active_support/core_ext/string'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-Object.const_set((`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.gsub(".git","").underscore.camelize, Module.new)
+Object.const_set((`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd.split("/")[4]).split("/").last.gsub(".git","").underscore.camelize, Module.new)
   .const_set('Application', Class.new(Rails::Application) do
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers

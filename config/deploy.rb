@@ -8,8 +8,6 @@ set :application, ENV["REPO_URL"].split("/").last.gsub(".git","").underscore.cam
 set :repo_url, ENV["REPO_URL"]
 
 set :assets_roles, [:app]
-set :puma_roles, [:app]
-set :sidekiq_roles, [:worker]
 
 set :deploy_ref, ENV["DEPLOY_REF"]
 set :deploy_ref_type, ENV["DEPLOY_REF_TYPE"]
@@ -62,7 +60,7 @@ namespace :deploy do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
         if test "[ -f #{fetch(:puma_pid_file)} ]" and test :kill, "-0 $( cat #{fetch(:puma_pid_file)} )"
-          execute "pumactl -S #{fetch(:puma_state_file)} restart"
+          execute "sudo systemctl restart puma"
         else
           execute "sudo systemctl start puma"
         end
