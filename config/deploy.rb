@@ -19,11 +19,11 @@ else
   ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 end
 
-platform = ENV["PLATFORM"] || "aws"
+platform = ENV["PLATFORM"] || "sun"
 set :platform, platform
 set :deploy_to, "/usr/local/rails_apps/#{fetch :application}"
 set :deployer, ENV["DEPLOYER"] || "deploy"
-set :instances, platform == "aws" ? get_ec2_targets : get_server_sun_targets
+set :instances, platform == "sun" ? get_server_sun_targets : get_ec2_targets
 set :deploy_via,      :remote_cache
 
 default_linked_files = [
