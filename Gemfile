@@ -6,7 +6,7 @@ gem 'rails', '>= 5.1.1'
 # Use mysql as the database for Active Record
 gem 'mysql2', '>= 0.3.18', '< 0.5'
 # Use Puma as the app server
-# gem 'puma', '~> 3.0'
+gem 'puma', '~> 4.3.1'
 # Use SCSS for stylesheets
 gem 'sass-rails'
 # Use Uglifier as compressor for JavaScript assets
@@ -70,7 +70,7 @@ group :test do
 end
 
 group :staging, :production do
-  gem 'capistrano'
+  gem 'capistrano', '3.10.1'
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'

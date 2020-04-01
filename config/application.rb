@@ -7,22 +7,21 @@ require 'active_support/core_ext/string'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-eval(<<EOF
-module #{(`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd).split("/").last.gsub(".git","").underscore.camelize}
-  class Application < Rails::Application
+module_name = (`echo $REPO_URL`.gsub("\n", "").presence || Dir.pwd.gsub(/(releases|current)\/\d+/,"")).split("/").last.gsub(".git","").underscore.camelize
+
+Object.const_set(module_name, Module.new)
+  .const_set('Application', Class.new(Rails::Application) do
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     config.time_zone = 'Asia/Tokyo'
     config.active_record.default_timezone = :local
     config.active_record.time_zone_aware_attributes = false
-    config.autoload_paths << Rails.root.join("lib")
-    config.eager_load_paths << Rails.root.join("lib")
+
+    config.autoload_paths += Dir[Rails.root.join("lib").to_s]
+    config.eager_load_paths += Dir[Rails.root.join("lib").to_s]
 
     Dir.glob("config/routes/*").each do |route|
       config.paths["config/routes.rb"] << Rails.root.join(route)
     end
-  end
-end
-EOF
-)
+  end)
