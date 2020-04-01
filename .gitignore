@@ -55,7 +55,6 @@ bower.json
 
 /config/database.local.yml
 /config/local_env.yml
-/config/deploy/settings.yml
 
 # Ignore application configuration
 /config/application.yml

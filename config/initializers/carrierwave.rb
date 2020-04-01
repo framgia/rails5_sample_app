@@ -1,5 +1,5 @@
 CarrierWave.configure do |config|
-  if Rails.env.development? || Rails.env.test? || Rails.env.staging?
+  if ENV["STORAGE_TYPE"] == "local"
     config.storage :file
   else
     config.fog_credentials = {
